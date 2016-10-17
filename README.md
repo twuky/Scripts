@@ -1,0 +1,2 @@
+# Scripts
+RPGMaker Scripting
