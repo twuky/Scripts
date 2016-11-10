@@ -3,16 +3,16 @@
 #==============================================================================
 
 module WiggleText
- 
+
   # Characters 'drop in' when first drawn.
   DROP_IN     = true
   # Height from where characters drop.
   DROP_HEIGHT = 8
-  
+
   # Enable or disable hitting a button to skip drawing characters one-by-one.
   # true means players can skip, false means they can't.
   SKIP_CHAR   = true
- 
+
   # If using Galv's message background script,
   # This will add a subtle floating effect to the text box, and all
   # characters inside. PLACE THIS SCRIPT BELOW GALV'S MESSAGE BACKGROUND.
@@ -26,7 +26,7 @@ end
 #==============================================================================
 
 class Sprite_TextAnim < Sprite
- 
+
   attr_accessor :anim_offset
   attr_accessor :anim_type
   attr_accessor :rainbow
@@ -34,8 +34,8 @@ class Sprite_TextAnim < Sprite
   attr_accessor :drop
   @timer      = false
   attr_accessor :galv_ani
- 
- 
+
+
   def ani
     self.oy = @drop
     @drop -= @drop * 0.16
@@ -47,10 +47,10 @@ class Sprite_TextAnim < Sprite
       self.oy = self.oy + Math.sin(@galv_ani) * 3
     end
   end
- 
+
   def update
     return unless @anim_offset
-    
+
     if @rainbow
       @rainbow_offset += 0.03
       self.color = Color.new(128 + Math.sin(@rainbow_offset) * 127,
@@ -103,7 +103,7 @@ class Sprite_TextAnim < Sprite
         return
     end
   end
- 
+
 end
 
 #==============================================================================
@@ -141,7 +141,7 @@ class Window_Message < Window_Base
     end
     wait_for_one_character
   end
- 
+
   #--------------------------------------------------------------------------
   # * Animated Character Processing | New Method
   #--------------------------------------------------------------------------
@@ -172,9 +172,9 @@ class Window_Message < Window_Base
       letter.drop = WiggleText::DROP_HEIGHT
     else
       letter.drop = 0
-    end  
+    end
     if @anim_type == 5
-      letter.anim_offset = 0  
+      letter.anim_offset = 0
     end
     letter.galv_ani = get_galvani
     if @rainbow
@@ -182,7 +182,7 @@ class Window_Message < Window_Base
       letter.rainbow_offset = @animchars.size * 0.5
     end
     if @anim_type == 5
-      letter.anim_offset = 0  
+      letter.anim_offset = 0
     end
     letter.galv_ani = get_galvani
     if @rainbow
@@ -255,7 +255,7 @@ class Window_Message < Window_Base
   #--------------------------------------------------------------------------
   alias tuckie_wiggle_update_show_fast update_show_fast
   def update_show_fast
-    tuckie_wiggle_update_show_fast()    
+    tuckie_wiggle_update_show_fast()
     @show_fast = false if !WiggleText::SKIP_CHAR
   end
   #--------------------------------------------------------------------------
@@ -284,7 +284,7 @@ class Window_Message < Window_Base
   end
   #--------------------------------------------------------------------------
   # * Window Update | Alias
-  #--------------------------------------------------------------------------  
+  #--------------------------------------------------------------------------
   alias tuckie_wiggly_update_base update
   def update
     update_text_animation()
@@ -300,5 +300,5 @@ class Window_Message < Window_Base
       end
     end
   end
- 
+
 end
