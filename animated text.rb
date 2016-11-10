@@ -5,6 +5,7 @@
 module WiggleText
 
   # Characters 'drop in' when first drawn.
+  # This affects all characters drawn, even characters without any animation.
   DROP_IN     = true
   # Height from where characters drop.
   DROP_HEIGHT = 8
