@@ -5,7 +5,6 @@
 module WiggleText
 
   # Characters 'drop in' when first drawn.
-  # This affects all characters drawn, even characters without any animation.
   DROP_IN     = true
   # Height from where characters drop.
   DROP_HEIGHT = 8
@@ -36,13 +35,19 @@ class Sprite_TextAnim < Sprite
   @timer      = false
   attr_accessor :galv_ani
 
+  def drop()
+    if WiggleText::DROP_IN
+      @drop -= @drop * 0.16
+      if @drop < 0
+        @drop = 0
+      end
+      return @drop
+    else
+      return 0
+    end
+  end
 
   def ani
-    self.oy = @drop
-    @drop -= @drop * 0.16
-    if @drop < 0
-      @drop = 0
-    end
     if WiggleText::GALV_ANI
       @galv_ani += 0.05
       self.oy = self.oy + Math.sin(@galv_ani) * 3
@@ -62,43 +67,45 @@ class Sprite_TextAnim < Sprite
     case @anim_type
       when 1
         @anim_offset += 0.115
-        self.oy = Math.sin(@anim_offset) * 3
+        self.oy = Math.sin(@anim_offset) * 3 + drop()
         ani()
       when 2
         @anim_offset += 0.2
         self.ox = Math.sin(@anim_offset) * 3
-        self.oy = Math.cos(@anim_offset) * -3
+        self.oy = Math.cos(@anim_offset) * -3 + drop()
         ani()
       when 3
         @anim_offset += 0.15
         self.zoom_x = 1 + Math.sin(@anim_offset) * 0.2
         self.zoom_y = 1 + Math.cos(@anim_offset) * 0.2
+        self.oy = drop()
         ani()
       when 4
         if @timer
         self.ox = rand(2) - rand(2)
-        self.oy = rand(2) - rand(2)
+        self.oy = rand(2) - rand(2) + drop()
         end
         @timer = !@timer
         ani()
       when 5
         @anim_offset += 0.1
         sample  = Math.sin(@anim_offset) * 5
-        self.oy = sample.abs
+        self.oy = sample.abs + drop()
         ani()
       when 6
         @anim_offset += 0.1
         self.ox = Math.sin(@anim_offset) * 3
-        self.oy = Math.cos(@anim_offset) * -2
+        self.oy = Math.cos(@anim_offset) * -2 + drop()
         self.angle = Math.sin(@anim_offset * 0.5) * 10
         ani()
       when 7
         #no animation
+        self.oy = drop()
         ani()
       when 8
         @anim_offset += 0.1
         self.ox = Math.sin(@anim_offset) * 3
-        self.oy = Math.cos(@anim_offset) * -2
+        self.oy = Math.cos(@anim_offset) * -2 + drop()
         self.angle = Math.sin(@anim_offset) * 10
       else
         return
@@ -250,6 +257,7 @@ class Window_Message < Window_Base
       letter.dispose
     end
     @animchars = []
+    @anim_type = 7
   end
   #--------------------------------------------------------------------------
   # * Update Fast Forward Flag | Alias
