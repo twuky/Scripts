@@ -3,6 +3,9 @@ module Tuckie_BattleFlavor
   FLTEXT_X =  0
   FLTEXT_Y =  -5
 
+  # Z Value of text. Higher Z-Values place it above other elements.
+  FLTEXT_Z = 299
+
   #--------------------------------------------------------------------------
   # Bar Background
   #   Settings for using an image as the background for the flavor text Bar
@@ -14,8 +17,12 @@ module Tuckie_BattleFlavor
 
   IMAGE_NAME = "BFlavBar" #Name of the file used for the background graphic
 
+  # X and Y OFFSETS of background images.
   BBYOFFSET  = 0
   BBXOFFSET  = 0
+
+  # Z Value of text. Higher Z-Values place it above other elements.
+  IMAGE_Z    = 30
   #--------------------------------------------------------------------------
   # TEXT CUSTOMIZATION
   #   Each Entry into the array below represents the set of quotes for one
@@ -48,11 +55,10 @@ class BattleFlavorWindow < Window_Base
     self.back_opacity = 0
     if Tuckie_BattleFlavor::BLACKBAR #module configuration = true
           @blackbar         =  Sprite.new()
-          @blackbar.bitmap  =  Cache.system("Tuckie_BattleFlavor::IMAGE_NAME")
-          @blackbar.x       =  Tuckie_BattleFlavor::FLTEXT_X
-          @blackbar.y       =  Tuckie_BattleFlavor::FLTEXT_Y
-          @blackbar.visible =  true
-          @blackbar.z       =  50
+          @blackbar.bitmap  =  Cache.system(Tuckie_BattleFlavor::IMAGE_NAME)
+          @blackbar.x       =  Tuckie_BattleFlavor::FLTEXT_X + Tuckie_BattleFlavor::BBYOFFSET
+          @blackbar.y       =  Tuckie_BattleFlavor::FLTEXT_Y + Tuckie_BattleFlavor::BBXOFFSET
+          @blackbar.z       =  Tuckie_BattleFlavor::IMAGE_Z
     end
   end
 
