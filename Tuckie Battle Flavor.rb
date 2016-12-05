@@ -4,6 +4,19 @@ module Tuckie_BattleFlavor
   FLTEXT_Y =  -5
 
   #--------------------------------------------------------------------------
+  # Bar Background
+  #   Settings for using an image as the background for the flavor text Bar
+  #
+  #
+  #--------------------------------------------------------------------------
+
+  BLACKBAR   =  true # Enable or disable this feature
+
+  IMAGE_NAME = "BFlavBar" #Name of the file used for the background graphic
+
+  BBYOFFSET  = 0
+  BBXOFFSET  = 0
+  #--------------------------------------------------------------------------
   # TEXT CUSTOMIZATION
   #   Each Entry into the array below represents the set of quotes for one
   #   troop.
@@ -33,8 +46,16 @@ class BattleFlavorWindow < Window_Base
     super(-6, -12, 648, 480)
     self.z = 299
     self.back_opacity = 0
+    if Tuckie_BattleFlavor::BLACKBAR #module configuration = true
+          @blackbar         =  Sprite.new()
+          @blackbar.bitmap  =  Cache.system("Tuckie_BattleFlavor::IMAGE_NAME")
+          @blackbar.x       =  Tuckie_BattleFlavor::FLTEXT_X
+          @blackbar.y       =  Tuckie_BattleFlavor::FLTEXT_Y
+          @blackbar.visible =  true
+          @blackbar.z       =  50
+    end
   end
-    
+
   def gettroopid
     flavortroop = $game_troop.alive_members.sample.enemy_id
     if Tuckie_BattleFlavor::ENEMY_FLAVOR[flavortroop] != nil
@@ -54,8 +75,9 @@ class BattleFlavorWindow < Window_Base
   def draw_text(x, y, text_width, text_height, string, allignment = 0)
     contents.draw_text(x, y, text_width, text_height, string, allignment)
   end
-  
+
   def destroy
+    @blackbar.dispose
     contents.clear
   end
 end #class BattleFlavorWindow
@@ -89,10 +111,10 @@ class Scene_Battle < Scene_Base
     tuckie_flavorescape()
   end
 
-  alias tuckie_flavor_terminate terminate  
+  alias tuckie_flavor_terminate terminate
   def terminate
     @window.dispose
     tuckie_flavor_terminate()
   end
-  
+
 end# class BattleFlavor
