@@ -37,12 +37,13 @@ module Tuckie_textblips
   #-----------------------------------------------------------------------------
   # Filename and Location Settings
   # Change SFX with a number, meaning in a message window:
-  # /TNAM[1] will look for Knock1 etc.
-  # Set it to 0 to use without a number. /TNAM[0] will look like Knock
+  # /TNAM[0] will look for the first item,
+  # /TNAM[1] will look for the second item,
+  # /TNAM[2] will look for the third item, etc.
   #-----------------------------------------------------------------------------
   SE_NAME = [
-    "Blip",   # \TNAM[0]
-    "Blop",   # \TNAM[1]
+    "Knock",   # \TNAM[0]
+    "Cursor1",   # \TNAM[1]
     "Blep",   # \TNAM[2]
     "Blap"   # \TNAM[3] ETC.
   ]
@@ -127,11 +128,7 @@ class Window_Message < Window_Base
     when 'TVOL'
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
-      if obtain_escape_param(text) != 0
-        @textblipfile = SE_NAME[obtain_escape_param(text)]
-      else
-        @textblipfile = SE_NAME[0]
-      end
+      @textblipfile = SE_NAME[obtain_escape_param(text)]
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
     when 'TMIN'
