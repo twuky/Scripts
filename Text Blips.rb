@@ -40,7 +40,12 @@ module Tuckie_textblips
   # /TNAM[1] will look for Knock1 etc.
   # Set it to 0 to use without a number. /TNAM[0] will look like Knock
   #-----------------------------------------------------------------------------
-  SE_NAME = "Knock"
+  SE_NAME = [
+    "Blip",   # \TNAM[0]
+    "Blop",   # \TNAM[1]
+    "Blep",   # \TNAM[2]
+    "Blap",   # \TNAM[3] ETC.
+  ]
 
   #-----------------------------------------------------------------------------
   # Volume Settings
@@ -79,7 +84,7 @@ class Window_Message < Window_Base
   def textblip(pitch)
     if RANDOMNESS == 0 or RANDOMNESS >= 100
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
-    elsif rand(RANDOMNESS) =< RANDOMNESS
+    elsif rand(RANDOMNESS) <= RANDOMNESS
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
     end
   end
@@ -123,9 +128,9 @@ class Window_Message < Window_Base
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
       if obtain_escape_param(text) != 0
-        @textblipfile = SE_NAME + obtain_escape_param(text).to_s
+        @textblipfile = SE_NAME[obtain_escape_param(text)]
       else
-        @textblipfile = SE_NAME
+        @textblipfile = SE_NAME[0]
       end
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
