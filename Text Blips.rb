@@ -44,7 +44,7 @@ module Tuckie_textblips
     "Blip",   # \TNAM[0]
     "Blop",   # \TNAM[1]
     "Blep",   # \TNAM[2]
-    "Blap",   # \TNAM[3] ETC.
+    "Blap"   # \TNAM[3] ETC.
   ]
 
   #-----------------------------------------------------------------------------
