@@ -22,7 +22,8 @@ module Tuckie_textblips
   #-----------------------------------------------------------------------------
   # Randomness Settings
   # The value of RANDOMNESS determines what chance it has to actually play
-  # a sound. A value of 1 will always play a sound.
+  # a sound. Enter a value out of 100, your percent chance the sound will play.
+  # Entering 0 OR 100 will result in 100% chance of playing.
   #-----------------------------------------------------------------------------
   RANDOMNESS = 0
 
@@ -76,9 +77,9 @@ class Window_Message < Window_Base
   # Process if sound should play | New Method
   #-----------------------------------------------------------------------------
   def textblip(pitch)
-    if RANDOMNESS == 0
+    if RANDOMNESS == 0 or RANDOMNESS >= 100
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
-    elsif rand(RANDOMNESS + 1) == 1
+    elsif rand(RANDOMNESS) =< RANDOMNESS
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
     end
   end
@@ -132,8 +133,6 @@ class Window_Message < Window_Base
       @textblipmin = obtain_escape_param(text)
     when 'TCNT'
       @count = obtain_escape_param(text)
-    when 'BLN'
-      @rainbow = false
     end
     tuckie_textblips_process_escape_character(code, text, pos)
   end
