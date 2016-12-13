@@ -23,7 +23,7 @@ module Tuckie_textblips
   # Randomness Settings
   # The value of RANDOMNESS determines what chance it has to actually play
   # a sound. Enter a value out of 100, your percent chance the sound will play.
-  # Entering 0 OR 100 will result in 100% chance to play.
+  # Entering 0 OR 100 will result in 100% chance of playing.
   #-----------------------------------------------------------------------------
   RANDOMNESS = 0
 
