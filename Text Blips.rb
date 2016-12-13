@@ -71,7 +71,7 @@ class Window_Message < Window_Base
   alias tuckie_textblips_initialize initialize
   def initialize(*args)
     @textblipvol  = SE_VOLUME
-    @textblipfile = SE_NAME
+    @textblipfile = SE_NAME[0]
     @textblipmax  = MAXIMUM
     @textblipmin  = MINIMUM
     @count        = COUNT
