@@ -141,7 +141,7 @@ class Window_Message < Window_Base
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
       @current_se = obtain_escape_param(text)
-      def textblip_check_array()
+      textblip_check_array()
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
     when 'TMIN'
