@@ -74,7 +74,7 @@ class Window_Message < Window_Base
   def initialize(*args)
     @textblipvol  = SE_VOLUME
     @current_se   = 0
-    def textblip_check_array()
+    textblip_check_array()
     @textblipmax  = MAXIMUM
     @textblipmin  = MINIMUM
     @count        = COUNT
