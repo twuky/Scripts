@@ -11,7 +11,7 @@ module Tuckie_textblips
   # Define how many characters must be drawn before a sound is played.
   # Usually 3 or more sounds nice.
   #-----------------------------------------------------------------------------
-  COUNT = 3
+  COUNT = 4
 
   #-----------------------------------------------------------------------------
   # Pitch Settings
@@ -25,14 +25,14 @@ module Tuckie_textblips
   # a sound. Enter a value out of 100, your percent chance the sound will play.
   # Entering 0 OR 100 will result in 100% chance of playing.
   #-----------------------------------------------------------------------------
-  RANDOMNESS = 0
+  RANDOMNESS = 40
 
   #-----------------------------------------------------------------------------
   # Pitch Settings
   # Enter a Maximum and Minimum pitch, from 70 to 150
   #-----------------------------------------------------------------------------
   MAXIMUM = 170
-  MINIMUM = 130
+  MINIMUM = 120
 
   #-----------------------------------------------------------------------------
   # Filename and Location Settings
@@ -42,10 +42,10 @@ module Tuckie_textblips
   # /TNAM[2] will look for the third item, etc.
   #-----------------------------------------------------------------------------
   SE_NAME = [
-    "Knock",   # \TNAM[0]
-    "Cursor1",   # \TNAM[1]
-    "Blep",   # \TNAM[2]
-    "Blap"   # \TNAM[3] ETC.
+    "Knock",                  # \TNAM[0]
+   ["Knock", "Cursor1"],      # \TNAM[1]
+    "Blep",                   # \TNAM[2]
+    "Blap"                    # \TNAM[3] ETC.
   ]
 
   #-----------------------------------------------------------------------------
@@ -64,6 +64,7 @@ class Window_Message < Window_Base
   attr_accessor :textblipmax  #
   attr_accessor :textblipmin  #
   attr_accessor :count        #
+  attr_accessor :current_se   #
   #---------------------------#
 
   #-----------------------------------------------------------------------------
@@ -72,7 +73,8 @@ class Window_Message < Window_Base
   alias tuckie_textblips_initialize initialize
   def initialize(*args)
     @textblipvol  = SE_VOLUME
-    @textblipfile = SE_NAME[0]
+    @current_se   = 0
+    def textblip_check_array()
     @textblipmax  = MAXIMUM
     @textblipmin  = MINIMUM
     @count        = COUNT
@@ -83,13 +85,23 @@ class Window_Message < Window_Base
   # Process if sound should play | New Method
   #-----------------------------------------------------------------------------
   def textblip(pitch)
+    textblip_check_array()
     if RANDOMNESS == 0 or RANDOMNESS >= 100
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
     elsif rand(RANDOMNESS) <= RANDOMNESS
       RPG::SE.new(@textblipfile, @textblipvol, pitch).play unless !BLIPS_ENABLED
     end
   end
-
+  #-----------------------------------------------------------------------------
+  # Determin if current SFX is an array, and randomly pick sfx | New Method
+  #-----------------------------------------------------------------------------
+  def textblip_check_array()
+    if SE_NAME[@current_se].is_a? Array
+      @textblipfile = SE_NAME[@current_se].sample
+    else
+      @textblipfile = SE_NAME[@current_se]
+    end
+  end
   #-----------------------------------------------------------------------------
   # Process if sound should play | New Method
   #-----------------------------------------------------------------------------
@@ -115,7 +127,7 @@ class Window_Message < Window_Base
   #-----------------------------------------------------------------------------
   alias tuckie_textblips_process_character process_character
   def process_character(c, text, pos)
-    textblip_process(c)
+    textblip_process(c) unless @show_fast
     tuckie_textblips_process_character(c, text, pos)
   end
 
@@ -128,7 +140,8 @@ class Window_Message < Window_Base
     when 'TVOL'
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
-      @textblipfile = SE_NAME[obtain_escape_param(text)]
+      @current_se = obtain_escape_param(text)
+      def textblip_check_array()
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
     when 'TMIN'
