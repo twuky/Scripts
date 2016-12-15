@@ -1,3 +1,54 @@
+=begin
+    ______________________
+  <  Advanced Text Blips  │
+   │By tuckie             │
+   │                      │
+   │ 12/14/16             │
+   │ Version: Mostly Done │
+   │______________________│
+
+        ____________
+ (-o-)< hi there!!! │
+       │____________│
+
+    __________________________________________
+  <                                           │
+   │ This script adds customizeable text sfx  │
+   │ to your message windows. You can change  │
+   │ settings on-the-fly using tagged         │
+   │ commands.                                │
+   │__________________________________________│
+
+================================================================================
+   HOW TO USE TEXT COMMANDS:
+
+    \TVOL[X]
+    X (0-100) changes the volume of the sound effect
+
+    \TNAM[X]
+    X represents which sound effect to switch to, as defined
+    in the settings below
+
+    \TMAX[X] and \TMIN[X]
+    X is the maximum and minimum pitch of the sound effect. This is randomized,
+    so if you want it to be the same each time, set both to be the same number.
+    Keep TMAX higher than TMIN.
+
+    \TCNT[X]
+    X is how many letters are skipped before the sound plays again. Sometimes
+    it can be too annoying to play the sound on every letter, so adjust this
+    as is fitting.
+================================================================================
+
+=end
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#_______________________________________________________________________________
+#
+# SETTINGS
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 module Tuckie_textblips
 
   BLIPS_ENABLED = true
@@ -42,10 +93,24 @@ module Tuckie_textblips
   # /TNAM[2] will look for the third item, etc.
   #-----------------------------------------------------------------------------
   SE_NAME = [
-    "Knock",                  # \TNAM[0]
+    "Knock",                  # \TNAM[0], This will be the DEFAULT sound.
    ["Knock", "Cursor1"],      # \TNAM[1]
     "Blep",                   # \TNAM[2]
     "Blap"                    # \TNAM[3] ETC.
+  ]
+
+  #-----------------------------------------------------------------------------
+  # Custom Text Commands
+  # Here, you can create custom commands that link to specific sound effects.
+  # Each entry is an array with the text in the command, and what SE_NAME number
+  # (located above this) it links to.
+  # DO NOT type the '\' in these settings. The script handles that automatically.
+  # You still need to use a '\' in your messages.
+  #-----------------------------------------------------------------------------
+  CUSTOM_CMD = [
+  ["TCST", 1],               # \TCST
+  [],
+  []
   ]
 
   #-----------------------------------------------------------------------------
@@ -140,13 +205,19 @@ class Window_Message < Window_Base
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
       @current_se = obtain_escape_param(text)
-      textblip_check_array()
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
     when 'TMIN'
       @textblipmin = obtain_escape_param(text)
     when 'TCNT'
       @count = obtain_escape_param(text)
+    end
+    CUSTOM_CMD.each do |custom|
+      if custom[0].is_a? String
+       if custom[0].upcase == code.upcase
+         @current_se = custom[1] if custom[1].is_a? Integer
+       end
+      end
     end
     tuckie_textblips_process_escape_character(code, text, pos)
   end
