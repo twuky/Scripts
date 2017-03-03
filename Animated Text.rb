@@ -284,10 +284,11 @@ class Window_Message < Window_Base
     tuckie_wiggle_update_back_sprite
   end
 
-  def get_galvani
+  def get_galvani # new method
     return @anim_offset
   end
-  def tuckie_update
+
+  def tuckie_update # new method
     @anim_offset += 0.05
     @bg.oy = Math.sin(@anim_offset) * 3
   end
@@ -310,4 +311,4 @@ class Window_Message < Window_Base
     end
   end
 
-end
+end # end of script :) have a nice one thankz for looking

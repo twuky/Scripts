@@ -1,10 +1,10 @@
 =begin
     ______________________
   <  Advanced Text Blips  │
-   │By tuckie             │
+   │ By tuckie            │
    │                      │
    │ 12/14/16             │
-   │ Version: Mostly Done │
+   │ Version: Pretty Done │
    │______________________│
 
         ____________
