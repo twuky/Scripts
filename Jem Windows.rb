@@ -15,7 +15,7 @@
 
   CONFIG = { # 👏 do 👏 not 👏 delete 👏 this 👏 pls 👏
 
-    img_src     => Cache.system("Jem_normal.png") # 📷
+    img_src     => Sprites[0] # 📷
 
     speed       => 0.1
 
@@ -47,12 +47,23 @@ class Sprite_jem < Sprite # 🔥 💎 🔥 it yo boy
     @count = 0
   end
 
+  def jem_bitmap_update(force)
+
+    if force
+      self.bitmap = Bitmap.new(@attributes[img_src.sample])
+    else
+      if @count % 16 == 0 and @count != 0
+        self.bitmap = Bitmap.new(@attributes[img_src.sample])
+      end
+
+    end
+
+  end
+
   def update()
-    self.bitmap = Bitmap.new(@attributes[img_src])
-
-    self.oy = @attributes[height_max] Math.sin(@count * )
-    self.ox = @attributes[width_max]
-
+    jem_bitmap_update(false)
+    self.oy = @attributes[height_max] * Math.sin( @count * @attributes[speed] )
+    self.ox = @attributes[width_max]  * Math.sin( @count * @attributes[speed] )    
     @count += 1
   end
 
