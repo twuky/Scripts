@@ -2,21 +2,20 @@
 
 
 #==============================================================================
-  module WindowJem # dont ✂️ this
+  module WindowJem # dont ✂️ this | for dj 📎📎
 #------------------------------------------------------------------------------
 # ** Default settings
 #    The settings for this script will resort to
 #==============================================================================
 
   Sprites = [
-    [Cache.system("Jem_normal.png"), Cache.system("Jem_normal_1.png")],
+    [Cache.system("Jem_normal.png"), Cache.system("Jem_normal_1.png")], # 0
     [Cache.system("Jem_kiss.png"), Cache.system("Jem_kiss_1.png")]
   ]
 
   CONFIG = { # 👏 do 👏 not 👏 delete 👏 this 👏 pls 👏
 
     img_src     => Sprites[0] # 📷
-
     speed       => 0.1
 
     #---------------------------------------------------------------------------
@@ -41,6 +40,7 @@ end
 
 class Sprite_jem < Sprite # 🔥 💎 🔥 it yo boy
   attr_accessor :attributes
+  attr_accessor :jem
 
   def initialize(attrs)
     @attributes = attrs
@@ -63,7 +63,7 @@ class Sprite_jem < Sprite # 🔥 💎 🔥 it yo boy
   def update()
     jem_bitmap_update(false)
     self.oy = @attributes[height_max] * Math.sin( @count * @attributes[speed] )
-    self.ox = @attributes[width_max]  * Math.sin( @count * @attributes[speed] )    
+    self.ox = @attributes[width_max]  * Math.sin( @count * @attributes[speed] )
     @count += 1
   end
 
@@ -77,6 +77,7 @@ end
 
 class Window_Message < Window_Base
   attr_accessor :attributes
+  attr_accessor :jem
 
   #--------------------------------------------------------------------------
   # * Window_Message Creation | Alias
@@ -85,6 +86,16 @@ class Window_Message < Window_Base
   def initialize
     tuckie_jem_initialize
     @attributes = WindowJem::CONFIG # sets to user setting default
+    @jem = []
+  end
+
+  #--------------------------------------------------------------------------
+  # * Jem sprite creation | New Method
+  #--------------------------------------------------------------------------
+  def create_jem()
+    jem = Sprite.new()
+
+    @jem.push(jem)
   end
 
   #--------------------------------------------------------------------------
@@ -96,7 +107,7 @@ class Window_Message < Window_Base
   def process_escape_character(code, text, pos)
     case code.upcase
     when 'HAT' # here comes our hat boy, watch out everyone | starts JEM
-
+      create_jem()
     when 'JEM'
       @attributes[img_src] = WindowJem::Sprites[obtain_escape_param(text)]
     when 'JEMSHK' # uh oh bye bye jem see u next time
@@ -110,19 +121,33 @@ class Window_Message < Window_Base
   #--------------------------------------------------------------------------
   # * Close Window and Wait for It to Fully Close | Alias
   #--------------------------------------------------------------------------
+  def jem_dispose()
+    unless @jem.empty?
+      @jem.each do |hat|
+        hat.dispose()
+      end
+    end
+    @attributes = WindowJem::CONFIG
+  end
+
+  #--------------------------------------------------------------------------
+  # * Close Window and Wait for It to Fully Close | Alias
+  #--------------------------------------------------------------------------
   alias tuckie_wiggly_close_wait close_and_wait
   def close_and_wait
-    # dude what are u doing NOT haveing a method for getting rid of jem
+    jem_dispose()
     tuckie_wiggly_close_wait()
   end
+
   #--------------------------------------------------------------------------
   # * Close Window and Wait for It to Fully Close | Alias
   #--------------------------------------------------------------------------
   alias tuckie_jem_dispose dispose
   def dispose
-    # hey buddo get going on a function for getting rid of jem
+    jem_dispose()
     tuckie_wiggly_dispose()
   end
+
   #--------------------------------------------------------------------------
   # * New Page | Alias
   #--------------------------------------------------------------------------
@@ -140,11 +165,16 @@ class Window_Message < Window_Base
     update_jem()
     tuckie_jem_update()
   end
+
   #--------------------------------------------------------------------------
   # * Text Animation Processing | New Method
   #--------------------------------------------------------------------------
   def update_jem()
-
+    unless @jem.empty?
+      @jem.each do |hat|
+        hat.update()
+      end
+    end
   end
 
 end # end of script :) have a nice one thankz for looking
