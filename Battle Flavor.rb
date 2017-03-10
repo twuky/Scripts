@@ -62,6 +62,13 @@ class BattleFlavorWindow < Window_Base
     end
   end
 
+  def update
+    destroy if $game_party.members.empty?
+    destroy if $game_party.all_dead?
+    destroy if $game_troop.all_dead?
+    super
+  end
+
   def gettroopid
     flavortroop = $game_troop.alive_members.sample.enemy_id
     if Tuckie_BattleFlavor::ENEMY_FLAVOR[flavortroop] != nil

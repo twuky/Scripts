@@ -42,7 +42,7 @@ class Earthbound_Back < Sprite
         self.y -= 1 if self.y.even?
         self.y -= 1 if self.y < 2
         self.ox = -1
-        self.zoom_y = 2
+        self.zoom_y = 2.5
         #@orig_y += 1
     end
 
@@ -78,7 +78,7 @@ class Spriteset_Battle
       strip = Earthbound_Back.new(@viewport1)
       #set strip boys
       strip.type = 2
-      strip.amplitude = 24
+      strip.amplitude = 30
       strip.frequency = 0
       strip.time_scale = 0.27926 / 4
       strip.compression = 1
@@ -174,26 +174,30 @@ class Spriteset_Battle
   # * Free Battle Background (Floor) Sprite
   #--------------------------------------------------------------------------
   def dispose_battleback1
-    @back1_sprite.bitmap.dispose
-    @back1_sprite.dispose
+    @back1_sprite.each { |bb| bb.dispose() }
+    @back1_sprite = []
   end
   #--------------------------------------------------------------------------
   # * Free Battle Background (Wall) Sprite
   #--------------------------------------------------------------------------
   def dispose_battleback2
-    @back2_sprite.bitmap.dispose
-    @back2_sprite.dispose
+    @back2_sprite.each { |bb| bb.dispose() }
+    @back2_sprite = []
   end
   #--------------------------------------------------------------------------
   # * Update Battle Background (Floor) Sprite
   #--------------------------------------------------------------------------
   def update_battleback1
-    @back1_sprite.each { |bb| bb.update() }
+    unless @back1_sprite.empty?
+      @back1_sprite.each { |bb| bb.update() }
+    end
   end
   #--------------------------------------------------------------------------
   # * Update Battle Background (Wall) Sprite
   #--------------------------------------------------------------------------
   def update_battleback2
-    @back2_sprite.each { |bb| bb.update() }
+    unless @back2_sprite.empty?
+      @back2_sprite.each { |bb| bb.update() }
+    end
   end
 end
