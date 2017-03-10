@@ -18,6 +18,14 @@ class Minigame_Base
     close()
   end
 
+  def setup()
+
+  end
+
+  def minigame_loop
+
+  end
+
   def get_usey_infotoids()
     # get user (of skill or item or whatever idk)
     if $game_temp.user.actor?
@@ -36,8 +44,9 @@ class Minigame_Base
 
   def close()
     @sprites.each do |sprite|
-
+      sprite.dispose
     end
+    @sprites = []
   end
 
 end
