@@ -142,6 +142,7 @@ class Window_Message < Window_Base
   alias tuckie_msg_bubble_new_page new_page
   def new_page(*args)
     @img_src = Window_msg_bubble::Sprites[0]
+    msg_bubble_dispose()
     tuckie_msg_bubble_new_page(*args)
   end
 
