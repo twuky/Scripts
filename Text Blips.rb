@@ -93,10 +93,10 @@ module Tuckie_textblips
   # /TNAM[2] will look for the third item, etc.
   #-----------------------------------------------------------------------------
   SE_NAME = [
-    "Knock",                  # \TNAM[0], This will be the DEFAULT sound.
-   ["Knock", "Cursor1"],      # \TNAM[1]
-    "Blep",                   # \TNAM[2]
-    "Blap"                    # \TNAM[3] ETC.
+    "vce TextBlip",           # \TNAM[0], This will be the DEFAULT sound.
+    "vce bubble",             # \TNAM[1]
+    "vce Metallic",           # \TNAM[2]
+    "vce dark"                # \TNAM[3] ETC.
   ]
 
   #-----------------------------------------------------------------------------
