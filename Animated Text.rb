@@ -173,6 +173,29 @@ class Window_Message < Window_Base
     pos[:x] += text_width
   end
   #--------------------------------------------------------------------------
+  # * Animated Character Processing | New Method
+  #--------------------------------------------------------------------------
+  def process_anim_emoji(c, pos)
+    text_width = 24
+    letter = Sprite_TextAnim.new(self.viewport)
+    icon_bitmap = Cache.system("Emoji")
+    bitmap = Bitmap.new(24, pos[:height])
+    rect = Rect.new(c % 16 * 24, c / 16 * 24, 24, 24)
+    bitmap.blt(0, 0, icon_bitmap, rect)
+    letter.bitmap = bitmap
+    letter.x = pos[:x] + self.standard_padding
+    letter.y += WiggleText::DROP_HEIGHT if WiggleText::DROP_IN
+    letter.y = self.y + standard_padding + pos[:y]
+    letter.z = self.z + 10
+    letter.anim_offset = @animchars.size
+    letter.anim_type = @anim_type
+    tuckie_extra(letter)
+    letter.update
+    #bitmap.draw_text(0, 0, text_width * 2, pos[:height], c)
+    @animchars.push(letter)
+    pos[:x] += text_width
+  end
+  #--------------------------------------------------------------------------
   # * Animated Character Extra Conditions | New Method
   #--------------------------------------------------------------------------
   def tuckie_extra(letter)
@@ -221,6 +244,8 @@ class Window_Message < Window_Base
       @rainbow = true
     when 'BLN'
       @rainbow = false
+    when 'MOJ'
+      process_anim_emoji(obtain_escape_param(text), pos)
     end
     tuckie_wiggly_process_escape_character(code, text, pos)
   end

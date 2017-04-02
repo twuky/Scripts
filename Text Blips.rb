@@ -1,4 +1,4 @@
-=begin
+ =begin
     ______________________
   <  Advanced Text Blips  │
    │ By tuckie            │

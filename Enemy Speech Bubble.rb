@@ -1,6 +1,3 @@
-
-
-
 #==============================================================================
   module Window_msg_bubble # dont ✂️ this | for dj 📎📎
 #------------------------------------------------------------------------------
@@ -9,7 +6,8 @@
 #==============================================================================
 
   Sprites = [
-    ["Graphics/System/msg_bubble_normal.png", "Graphics/System/msg_bubble_normal_1.png"], # 0
+    ["Graphics/System/msg_bubble_normal.png",
+     "Graphics/System/msg_bubble_normal.png"], # 0
     #[Cache.system("msg_bubble_kiss.png"), Cache.system("msg_bubble_kiss_1.png")]
   ]
 
@@ -24,8 +22,8 @@ end
 class Sprite_msg_bubble < Sprite # 🔥 💎 🔥 it yo boy
 #==========================#
     attr_accessor :img_src #
-    attr_accessor :x_off   #
-    attr_accessor :y_off   #
+    attr_accessor :mbb_x_off   #
+    attr_accessor :mbb_y_off   #
     attr_accessor :target  #
 #==========================#
 
@@ -35,9 +33,9 @@ class Sprite_msg_bubble < Sprite # 🔥 💎 🔥 it yo boy
   end
 
   def update(*args)
-    self.bitmap = Bitmap.new(@img_src.sample) if @count % 8 == 0
-    self.oy     =  @y_off
-    self.ox     =  @x_off
+    self.bitmap =  Bitmap.new("Graphics/System/msg_bubble_normal.png") #if @count % 8 == 0
+    self.oy     =  @mbb_y_off
+    self.ox     =  @mbb_x_off
     @count += 1
     super(*args)
   end
@@ -53,8 +51,8 @@ end
 class Window_Message < Window_Base
   #==========================#
       attr_accessor :img_src #
-      attr_accessor :x_off   #
-      attr_accessor :y_off   #
+      attr_accessor :mbb_x_off   #
+      attr_accessor :mbb_y_off   #
       attr_accessor :target  #
   #==========================#
 
@@ -71,19 +69,19 @@ class Window_Message < Window_Base
   # * get attributes | New Method
   #--------------------------------------------------------------------------
   def get_attributes
-   @img_src    = Window_msg_bubble::Sprites[0]
-   @x_off      = 0
-   @y_off      = 0
+   #@img_src    = Window_msg_bubble::Sprites[0]
+   @mbb_x_off      = 0
+   @mbb_y_off      = 0
   end
 
   #--------------------------------------------------------------------------
   # * msg_bubble sprite creation | New Method
   #--------------------------------------------------------------------------
   def create_msg_bubble()
+    #@msg_bubble.img_src    = @img_src
     @msg_bubble = Sprite_msg_bubble.new()
-    @msg_bubble.img_src    = @img_src
-    @msg_bubble.x =  $game_troop.members[$game_variables[28]].screen_x
-    @msg_bubble.y =  $game_troop.members[$game_variables[28]].screen_y
+    @msg_bubble.x =  $game_troop.members[$game_variables[28]].screen_x - 32
+    @msg_bubble.y =  Graphics.height / 2 - 32 #$game_troop.members[$game_variables[28]].screen_y
     @msg_bubble.z =  500
     @msg_bubble.visible = true
   end
@@ -97,11 +95,11 @@ class Window_Message < Window_Base
   def process_escape_character(code, text, pos)
     case code.upcase
     when 'MBL' # here comes our hat boy, watch out everyone | starts msg_bubble
-      @img_src  = Window_msg_bubble::Sprites[obtain_escape_param(text)]
+      create_msg_bubble()
     when 'MB_X'
-      @x_off    = obtain_escape_param(text)
+      @mbb_x_off    = obtain_escape_param(text)
     when 'MB_Y'
-      @y_off    = obtain_escape_param(text)
+      @mbb_y_off    = obtain_escape_param(text)
     when 'MBLOFF' # uh oh bye bye msg_bubble see u next time
       msg_bubble_dispose()
     end
@@ -141,7 +139,7 @@ class Window_Message < Window_Base
   #--------------------------------------------------------------------------
   alias tuckie_msg_bubble_new_page new_page
   def new_page(*args)
-    @img_src = Window_msg_bubble::Sprites[0]
+    #@img_src = Window_msg_bubble::Sprites[0]
     msg_bubble_dispose()
     tuckie_msg_bubble_new_page(*args)
   end
@@ -160,7 +158,8 @@ class Window_Message < Window_Base
   #--------------------------------------------------------------------------
   def update_msg_bubble()
     if defined? @msg_bubble != nil
-
+      @msg_bubble.mbb_x_off = @mbb_x_off
+      @msg_bubble.mbb_y_off = @mbb_y_off
       @msg_bubble.update
     end
   end

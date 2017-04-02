@@ -7,8 +7,9 @@
 # $game_variables[30]   # Stores the used item
 
 class Minigame_Base
-  def initialize()
+  def initialize(actor)
     #------ should set these up when making customs
+    @actor_id  = actor
     @sprites   = []
     @mg_length = 0
     #------
@@ -19,7 +20,7 @@ class Minigame_Base
   end
 
   def setup()
-
+    msgbox_p(@target)
   end
 
   def minigame_loop
@@ -29,13 +30,13 @@ class Minigame_Base
   def get_usey_infotoids()
     # get user (of skill or item or whatever idk)
     if $game_temp.user.actor?
-      @user = $game_temp.user.instance_variable_get(:@actor_id)
+      @user = $game_temp.user.instance_variable_get(@actor_id)
     else
       @user = $game_temp.user.index
     end
     # get target WHOS BEIN HIT??? (✨_✨)✋
     if $game_temp.target.actor?
-      @target = $game_temp.target.instance_variable_get(:@actor_id)
+      @target = $game_temp.target.instance_variable_get(@actor_id)
     else
       @target = $game_temp.target.index
     end
@@ -56,7 +57,7 @@ class Scene_Battle < Scene_Base
   def run_minigame(num)
     case num
       when 0
-        msgbox_p("yo, it works!")
+        @test = Minigame_Base.new(:@actor_id)
       when 1
 
     end
@@ -66,7 +67,7 @@ class Scene_Battle < Scene_Base
   def use_item
     item = @subject.current_action.item
     if item.note =~ /<minigame:[ ](\d+)>/
-      ($1.to_i)
+    run_minigame($1.to_i)
     end
     tuckie_minigame_use_item
   end
