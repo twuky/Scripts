@@ -79,6 +79,8 @@ class Earthbound_Back < Sprite
   attr_accessor :config
 
   def initialize(*args)
+    @val = 0 #variable to hold end value
+    @anim_forward = true
     @timer = 1
     super(*args)
   end
@@ -86,8 +88,8 @@ class Earthbound_Back < Sprite
   def update()
     @offset =  @config["amplitude"] *
       Math.sin(@config["frequency"] * @orig_y + @time * @config["time_scale"])
-    @time += 1
     tuckie_eb_update()
+    @time += 1
   end
 
   def tuckie_eb_update()
@@ -140,27 +142,22 @@ class Earthbound_Back < Sprite
   def eb_anim
     return if !@config["anim_basic"]
 
-    @config["anim_spd"]
-    @congig["anim_type"]
-    @config["anim_target"]
-    @config["anim_str"]
-
-    case @congig["anim_type"]
+    case @config["anim_type"]
       when 0
-
+        @val = @config["anim_str"] * Math.sin(@config["anim_spd"] * @time)
       when 1
-
+        @anim_forward ? @val += @config["anim_spd"] : @val -= @config["anim_spd"]
+        @anim_forward = true  if @val <= -@config["anim_str"]
+        @anim_forward = false if @val >=  @config["anim_str"]
     end
 
-    val = 0 #variable to hold end value
-    val = Math.sin()
     case @config["anim_target"]
       when 0
-
+        @config["amplitude"]  = @val
       when 1
-
+        @config["frequency"]  = @val
       when 2
-
+        @config["time_scale"] = @val
     end
 
   end
