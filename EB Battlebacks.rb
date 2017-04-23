@@ -28,8 +28,8 @@ module Tuckie_eb_bb_config
     "Default" => {
       #== Basic Info ==#
         "amplitude"   => 30,
-        "frequency"   => 2,
-        "time_scale"  => 0.5,
+        "frequency"   => 0,
+        "time_scale"  => 0.05,
         "compression" => 1,
       #== Type ==#
         #== 0 = sinewave, 1 = criss-cross, 2 = vertical stretch ==#
@@ -37,6 +37,49 @@ module Tuckie_eb_bb_config
       #== vertical stretch settings, only used with "type" => 2, ==#
         "v_scale"     => 0.5,
         "v_zoom"      => 2,
+      #== "Pixel Precise" - sets the x of each strip to allign to 2x2 grid ==#
+        "pixel"       => true,
+      #== Y scrolling, images do loop. ==#
+        "scrl_y_spd"  => 0,
+      #== Image Cycling (for palette swap effect) ==#
+        "img_cycle"   => false,
+        #== Will look in Graphics/Battlebacks[1/2], whichever it is ==#
+        "img_array"   => ["image_1", "image_2", "image_etc"],
+        #== Background cycle updates every X frames ==#
+        "img_speed"   => 16,
+        #== Image changes all at once, or layer by layer ==#
+        "img_sync"    => true,
+      #== Change basic element info to animate as a sinewave ==#
+        "anim_basic"  => false,
+        #== Changing frequency/time/amp over time looks cool ==#
+          #== Amp. = 0, Freq. = 1, Time = 2, scrl_y_spd = 3, ==#
+        "anim_target" => 0,
+        #== Type of animation: sinewave = 0, linear = 1 ==#
+        "anim_type"   => 0,
+        #== The value the animation reaches to, positive and negative ==#
+        "anim_str"    => 2,
+        #== The speed the animation plays through ==#
+        "anim_spd"    => 0.01,
+        #== Animate all at once, or layer by layer ==#
+        "anim_sync"   => true,
+    },
+
+    #== Type your filename WITHOUT .png ==#
+    #== Probably best to copy the default and modify it ==#
+    "bb05" => {
+      #== Basic Info ==#
+        "amplitude"   => -30,
+        "frequency"   => 0,
+        "time_scale"  => 0.05,
+        "compression" => 1,
+      #== Type ==#
+        #== 0 = sinewave, 1 = criss-cross, 2 = vertical stretch ==#
+        "type"        => 0,
+      #== vertical stretch settings, only used with "type" => 2, ==#
+        "v_scale"     => 0.5,
+        "v_zoom"      => 2,
+      #== "Pixel Precise" - sets the x of each strip to allign to 2x2 grid ==#
+        "pixel"       => true,
       #== Y scrolling, images do loop. ==#
         "scrl_y_spd"  => 0,
       #== Image Cycling (for palette swap effect) ==#
@@ -46,23 +89,17 @@ module Tuckie_eb_bb_config
         #== Background cycle updates every X frames ==#
         "img_speed"   => 16,
       #== Change basic element info to animate as a sinewave ==#
-        "anim_basic"  => false,
+        "anim_basic"  => true,
         #== Changing frequency/time/amp over time looks cool ==#
-          #== Amp. = 0, Freq. = 1, Time = 2 ==#
-        "anim_target" => 0,
+          #== Amp. = 0, Freq. = 1, Time = 2, scrl_y_spd = 3, ==#
+        "anim_target" => 3,
         #== Type of animation: sinewave = 0, linear = 1 ==#
         "anim_type"   => 0,
         #== The value the animation reaches to, positive and negative ==#
-        "anim_str"    => 0,
+        "anim_str"    => -2,
         #== the speed the animation plays through ==#
-        "anim_spd"    => 0.1,
+        "anim_spd"    => 0.01,
     },
-
-    #== Type your filename WITHOUT .png ==#
-    #== Probably best to copy the default and modify it ==#
-    "bg_img_2" => {
-
-    }
 
   }
 
@@ -80,6 +117,7 @@ class Earthbound_Back < Sprite
 
   def initialize(*args)
     @val = 0 #variable to hold end value
+    @sync_time = 0
     @anim_forward = true
     @timer = 1
     super(*args)
@@ -90,12 +128,13 @@ class Earthbound_Back < Sprite
       Math.sin(@config["frequency"] * @orig_y + @time * @config["time_scale"])
     tuckie_eb_update()
     @time += 1
+    @sync_time += 1
   end
 
   def tuckie_eb_update()
     eb_wave()
-    eb_cycle()
-    eb_anim()
+    @config["img_sync"]  ? eb_cycle() : eb_cycle_s()
+    @config["anim_sync"] ? eb_anim()  : eb_anim_s()
     eb_scroll_y()
     eb_placement()
   end
@@ -104,28 +143,42 @@ class Earthbound_Back < Sprite
     case @config["type"]
       when 0
         self.ox = @offset
-        self.ox -= 1 if !self.ox.even?
       when 1
         self.ox = @count.even? ? @offset - 1: -@offset
-        self.ox -= 1 if !self.ox.even?
       when 2
         newoff = @offset * @config["v_scale"]
         self.y = @orig_y * @config["compression"] + newoff
         self.y -= 1 if self.y.even?
         self.y -= 1 if self.y < 2
-        self.ox = -1
         self.zoom_y = @config["v_zoom"]
     end
   end
 
   def eb_scroll_y
-    @orig_y += @config["scrl_y_spd"]
+    self.y += @config["scrl_y_spd"]
   end
 
   def eb_cycle
     return if !@config["img_cycle"]
     @cycle_frame = 0 if !defined? @cycle_frame
     if @time % @config["img_speed"] == 0
+      @cycle_frame += 1
+      @cycle_frame = 0 if @cycle_frame > @config["img_array"].length
+    end
+    case bb_num
+      when 1
+        bitmap =  Bitmap.new(Cache.battleback1(@config["img_array"][@cycle_frame]))
+        self.bitmap = bitmap
+      when 2
+        bitmap =  Bitmap.new(Cache.battleback2(@config["img_array"][@cycle_frame]))
+        self.bitmap = bitmap
+    end
+  end
+
+  def eb_cycle_s
+    return if !@config["img_cycle"]
+    @cycle_frame = 0 if !defined? @cycle_frame
+    if @sync_time % @config["img_speed"] == 0
       @cycle_frame += 1
       @cycle_frame = 0 if @cycle_frame > @config["img_array"].length
     end
@@ -158,12 +211,42 @@ class Earthbound_Back < Sprite
         @config["frequency"]  = @val
       when 2
         @config["time_scale"] = @val
+      when 3
+        @config["scrl_y_spd"] = @val
+    end
+
+  end
+
+  def eb_anim_s
+    return if !@config["anim_basic"]
+
+    case @config["anim_type"]
+      when 0
+        @val = @config["anim_str"] * Math.sin(@config["anim_spd"] * @sync_time)
+      when 1
+        @anim_forward ? @val += @config["anim_spd"] : @val -= @config["anim_spd"]
+        @anim_forward = true  if @val <= -@config["anim_str"]
+        @anim_forward = false if @val >=  @config["anim_str"]
+    end
+
+    case @config["anim_target"]
+      when 0
+        @config["amplitude"]  = @val
+      when 1
+        @config["frequency"]  = @val
+      when 2
+        @config["time_scale"] = @val
+      when 3
+        @config["scrl_y_spd"] = @val
     end
 
   end
 
   def eb_placement
-    self.y = (self.y + Graphics.height) % Graphics.height
+    self.y = (self.y + self.bitmap.height) % self.bitmap.height
+    if @config["pixel"]
+      self.ox -= 1 if !self.ox.even?
+    end
   end
 
 end
