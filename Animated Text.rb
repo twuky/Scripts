@@ -16,7 +16,10 @@ module WiggleText
   # If using Galv's message background script,
   # This will add a subtle floating effect to the text box, and all
   # characters inside. PLACE THIS SCRIPT BELOW GALV'S MESSAGE BACKGROUND.
-  GALV_ANI    = false
+  GALV_ANI    = true
+
+  NAMES = ["Jem", "Clips"]
+
 end
 
 #==============================================================================
@@ -49,8 +52,8 @@ class Sprite_TextAnim < Sprite
 
   def ani
     if WiggleText::GALV_ANI
-      @galv_ani += 0.05
       self.oy = self.oy + Math.sin(@galv_ani) * 3
+      @galv_ani += 0.05
     end
   end
 
@@ -149,31 +152,55 @@ class Window_Message < Window_Base
     end
     wait_for_one_character
   end
-
   #--------------------------------------------------------------------------
   # * Animated Character Processing | New Method
   #--------------------------------------------------------------------------
   def process_anim_character(c, pos)
     text_width = text_size(c).width
+    if defined? Graphics.fullscreen #MKXP fix
+      text_width += text_width * 0.6
+      text_width = text_width.round
+    end
     letter = Sprite_TextAnim.new(self.viewport)
-    bitmap = Bitmap.new(text_width * 2, pos[:height])
-    bitmap.font = self.contents.font
-    #
+    bitmap = Bitmap.new(text_width, pos[:height])
     letter.bitmap = bitmap
     letter.x = pos[:x] + self.standard_padding
     letter.y += WiggleText::DROP_HEIGHT if WiggleText::DROP_IN
-    letter.y = self.y + standard_padding + pos[:y]
+    letter.y = self.y + standard_padding + pos[:y] + 2
     letter.z = self.z + 10
     letter.anim_offset = @animchars.size
     letter.anim_type = @anim_type
     tuckie_extra(letter)
     letter.update
-    bitmap.draw_text(0, 0, text_width * 2, pos[:height], c)
+    bitmap.draw_text(0, 0, 10, pos[:height], c)
     @animchars.push(letter)
     pos[:x] += text_width
   end
   #--------------------------------------------------------------------------
-  # * Animated Character Processing | New Method
+  # * Name Menu Processing | New Method
+  #--------------------------------------------------------------------------
+  def process_name(c, pos)
+    c = WiggleText::NAMES[c]
+    text_width = text_size(c).width
+    if defined? Graphics.fullscreen #MKXP fix
+      text_width += text_width * 0.6
+      text_width = text_width.round
+    end
+    letter = Sprite_TextAnim.new(self.viewport)
+    bitmap = Bitmap.new(text_width, 12)
+    letter.bitmap = bitmap
+    letter.x = 23
+    letter.y = self.y  - 10
+    letter.z = self.z + 10
+    letter.anim_offset = @animchars.size
+    letter.anim_type = 7 #@anim_type
+    tuckie_extra(letter)
+    letter.update
+    bitmap.draw_text(0, 0, 10, 12, c)
+    @animchars.push(letter)
+  end
+  #--------------------------------------------------------------------------
+  # * Animated Emoji Processing | New Method
   #--------------------------------------------------------------------------
   def process_anim_emoji(c, pos)
     text_width = 24
@@ -212,14 +239,6 @@ class Window_Message < Window_Base
       letter.rainbow = true
       letter.rainbow_offset = @animchars.size * 0.5
     end
-    if @anim_type == 5
-      letter.anim_offset = 0
-    end
-    letter.galv_ani = get_galvani
-    if @rainbow
-      letter.rainbow = true
-      letter.rainbow_offset = @animchars.size * 0.5
-    end
   end
   #--------------------------------------------------------------------------
   # * Control Character Processing | Alias
@@ -246,10 +265,11 @@ class Window_Message < Window_Base
       @rainbow = false
     when 'MOJ'
       process_anim_emoji(obtain_escape_param(text), pos)
+    when 'NAM'
+      process_name(obtain_escape_param(text), pos)
     end
     tuckie_wiggly_process_escape_character(code, text, pos)
   end
-
   #--------------------------------------------------------------------------
   # * Close Window and Wait for It to Fully Close | Alias
   #--------------------------------------------------------------------------
@@ -332,6 +352,35 @@ class Window_Message < Window_Base
     unless @animchars.empty?
       @animchars.each do |letter|
         letter.update
+      end
+    end
+  end
+
+end
+
+class Window_NameMessage < Window_Base
+
+  alias tuckie_animtext_yanfly_init initialize
+  def initialize(*args)
+    @anim_offset = 0
+    tuckie_animtext_yanfly_init(*args)
+  end
+
+  alias tuckie_anim_yanfly_update update
+  def update
+    if WiggleText::GALV_ANI
+      tuckie_anim_yanfly_update
+      @anim_offset += 0.05
+      offset = Math.sin(@anim_offset) * -3
+      case $game_message.position
+        when 0
+          self.y = @message_window.height
+          self.y -= YEA::MESSAGE::NAME_WINDOW_Y_BUFFER
+          self.y += offset + 2
+        else
+          self.y = @message_window.y - self.height
+          self.y += YEA::MESSAGE::NAME_WINDOW_Y_BUFFER
+          self.y += offset + 2
       end
     end
   end
