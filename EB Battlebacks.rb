@@ -105,8 +105,17 @@ module Tuckie_eb_bb_config
 
 end
 
+#==============================================================================
+# ** Earthbound_Back
+#------------------------------------------------------------------------------
+#  This class is a modification of the Sprite class with built-in functionality
+#  to animate along a sinewave, for those trippy battlebacks that are so in
+#  these days 🎮🎮🎮🎮
+#==============================================================================
 class Earthbound_Back < Sprite
-
+#--------------------------------------------------------------------------
+# * Attribute Accessor setup
+#--------------------------------------------------------------------------
   attr_accessor :time
   attr_accessor :count
   attr_accessor :offset
@@ -114,7 +123,9 @@ class Earthbound_Back < Sprite
   attr_accessor :orig_y
   attr_accessor :bb_num
   attr_accessor :config
-
+#--------------------------------------------------------------------------
+# * Initialize
+#--------------------------------------------------------------------------
   def initialize(*args)
     @val = 0 #variable to hold end value
     @sync_time = 0
@@ -122,7 +133,9 @@ class Earthbound_Back < Sprite
     @timer = 1
     super(*args)
   end
-
+#--------------------------------------------------------------------------
+# * Update
+#--------------------------------------------------------------------------
   def update()
     @offset =  @config["amplitude"] *
       Math.sin(@config["frequency"] * @orig_y + @time * @config["time_scale"])
@@ -130,7 +143,9 @@ class Earthbound_Back < Sprite
     @time += 1
     @sync_time += 1
   end
-
+#--------------------------------------------------------------------------
+# * Update method breakdowns
+#--------------------------------------------------------------------------
   def tuckie_eb_update()
     eb_wave()
     @config["img_sync"]  ? eb_cycle() : eb_cycle_s()
@@ -138,7 +153,9 @@ class Earthbound_Back < Sprite
     eb_scroll_y()
     eb_placement()
   end
-
+#--------------------------------------------------------------------------
+# * Basic Wave updating
+#--------------------------------------------------------------------------
   def eb_wave()
     case @config["type"]
       when 0
@@ -153,11 +170,15 @@ class Earthbound_Back < Sprite
         self.zoom_y = @config["v_zoom"]
     end
   end
-
+#--------------------------------------------------------------------------
+# * Vertical Scrolling
+#--------------------------------------------------------------------------
   def eb_scroll_y
     self.y += @config["scrl_y_spd"]
   end
-
+#--------------------------------------------------------------------------
+# * Image cycling
+#--------------------------------------------------------------------------
   def eb_cycle
     return if !@config["img_cycle"]
     @cycle_frame = 0 if !defined? @cycle_frame
@@ -174,7 +195,9 @@ class Earthbound_Back < Sprite
         self.bitmap = bitmap
     end
   end
-
+#--------------------------------------------------------------------------
+# * Synced image cycling
+#--------------------------------------------------------------------------
   def eb_cycle_s
     return if !@config["img_cycle"]
     @cycle_frame = 0 if !defined? @cycle_frame
@@ -191,10 +214,11 @@ class Earthbound_Back < Sprite
         self.bitmap = bitmap
     end
   end
-
+#--------------------------------------------------------------------------
+# * Animation of elements
+#--------------------------------------------------------------------------
   def eb_anim
     return if !@config["anim_basic"]
-
     case @config["anim_type"]
       when 0
         @val = @config["anim_str"] * Math.sin(@config["anim_spd"] * @time)
@@ -203,7 +227,6 @@ class Earthbound_Back < Sprite
         @anim_forward = true  if @val <= -@config["anim_str"]
         @anim_forward = false if @val >=  @config["anim_str"]
     end
-
     case @config["anim_target"]
       when 0
         @config["amplitude"]  = @val
@@ -214,12 +237,12 @@ class Earthbound_Back < Sprite
       when 3
         @config["scrl_y_spd"] = @val
     end
-
   end
-
+#--------------------------------------------------------------------------
+# * animation of elements SYNCED
+#--------------------------------------------------------------------------
   def eb_anim_s
     return if !@config["anim_basic"]
-
     case @config["anim_type"]
       when 0
         @val = @config["anim_str"] * Math.sin(@config["anim_spd"] * @sync_time)
@@ -228,7 +251,6 @@ class Earthbound_Back < Sprite
         @anim_forward = true  if @val <= -@config["anim_str"]
         @anim_forward = false if @val >=  @config["anim_str"]
     end
-
     case @config["anim_target"]
       when 0
         @config["amplitude"]  = @val
@@ -239,16 +261,16 @@ class Earthbound_Back < Sprite
       when 3
         @config["scrl_y_spd"] = @val
     end
-
   end
-
+#--------------------------------------------------------------------------
+# * Corrects screen looping, and "pixel perfect x values"
+#--------------------------------------------------------------------------
   def eb_placement
     self.y = (self.y + self.bitmap.height) % self.bitmap.height
     if @config["pixel"]
       self.ox -= 1 if !self.ox.even?
     end
   end
-
 end
 #==============================================================================
 # ** Spriteset_Battle
