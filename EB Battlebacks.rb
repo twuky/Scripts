@@ -157,6 +157,7 @@ class Earthbound_Back < Sprite
 # * Basic Wave updating
 #--------------------------------------------------------------------------
   def eb_wave()
+    self.y = @orig_y
     case @config["type"]
       when 0
         self.ox = @offset
@@ -174,7 +175,7 @@ class Earthbound_Back < Sprite
 # * Vertical Scrolling
 #--------------------------------------------------------------------------
   def eb_scroll_y
-    self.y += @config["scrl_y_spd"]
+    @orig_y += @config["scrl_y_spd"]
   end
 #--------------------------------------------------------------------------
 # * Image cycling
@@ -266,7 +267,7 @@ class Earthbound_Back < Sprite
 # * Corrects screen looping, and "pixel perfect x values"
 #--------------------------------------------------------------------------
   def eb_placement
-    self.y = (self.y + self.bitmap.height) % self.bitmap.height
+    @orig_y = (@orig_y + self.bitmap.height) % self.bitmap.height
     if @config["pixel"]
       self.ox -= 1 if !self.ox.even?
     end
