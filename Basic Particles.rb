@@ -18,7 +18,7 @@ class Particle < Sprite
     self.y = loc_y
     self.z = loc_z
     @frame_limit = -1
-
+    @done = true
   end
 
   def set_size(s_start, s_end, s_speed)
@@ -38,7 +38,7 @@ class Particle < Sprite
   def update
     update_size()
     update_location()
-    @frame_limit -= 1 if @frame_limit > 0 
+    @frame_limit -= 1 if @frame_limit > 0
     determine_end()
   end
 
@@ -50,19 +50,18 @@ class Particle < Sprite
 
   end
 
+  def can_delete?
+    return @done
+  end
+
   def determine_if_done()
-    done = false
     if @frame_limit == 0
-
-    end
-
-    if done
-
+        @done = true
     end
   end
 
   def delete
-
+    self.dispose
   end
 
 end
@@ -75,7 +74,9 @@ class Game_Particles
   end
 
   def update
-
+    @particle_stack.each do |particle|
+      particle.update if particle <= Particle
+    end
   end
 
 end
@@ -85,10 +86,11 @@ class Game_Map
 
   alias tuckie_particle_init initialize
   def initialize
-    @particles = Game_Particles.new()
+
     tuckie_particle_init
   end
 end
+
 class Game_Actor < Game_Battler
 
   #--------------------------------------------------------------------------
@@ -111,6 +113,30 @@ class Game_Actor < Game_Battler
   def on_player_walk
     create_walk_particle()
     tuckie_particle_walk
+  end
+
+end
+
+module DataManager
+
+  class << self # or, class << MyModule
+    alias tuckie_creategamepartics create_game_objects
+    def create_game_objects()
+      tuckie_creategamepartics()
+      $game_particles = Game_Particles.new
+    end
+  end
+
+end
+
+module Graphics
+
+  class << self
+    alias tuckie_particle_update update
+    def update()
+    $game_particles.update
+    tuckie_particle_update()
+    end
   end
 
 end

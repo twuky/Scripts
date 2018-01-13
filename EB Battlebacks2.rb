@@ -1,111 +1,3 @@
-#    ______________________
-#  <  EB Backgtounds       │
-#   │ By tuckie            │
-#   │                      │
-#   │ 4/22/17              │
-#   │ Version: eh% done    │
-#   │______________________│
-
-#        ____________
-# (-o-)< hungry! !!  │
-#       │____________│
-
-#   __________________________________________
-# <                                           │
-#  │ This script changes battle backgrounds   │
-#  │ to emulate the cool effects of the       │
-#  │ backgrounds in famous SNES title         │
-#  │ Earthbound. have fun lol :))))           │
-#  │__________________________________________│
-
-
-
-module Tuckie_eb_bb_config
-
-  # Hey what's up dudes, it ur boy Tuckie 👌
-  # Back at it again with scripting 🔥🔥🔥
-
-  BACKGROUND_DEETS = {
-
-    "Default" => {
-      #== Basic Info ==#
-        "amplitude"   => 30,
-        "frequency"   => 0,
-        "time_scale"  => 0.05,
-        "compression" => 1,
-      #== Type ==#
-        #== 0 = sinewave, 1 = criss-cross, 2 = vertical stretch ==#
-        "type"        => 0,
-      #== vertical stretch settings, only used with "type" => 2, ==#
-        "v_scale"     => 0.5,
-        "v_zoom"      => 2,
-      #== "Pixel Precise" - sets the x of each strip to allign to 2x2 grid ==#
-        "pixel"       => true,
-      #== Y scrolling, images do loop. ==#
-        "scrl_y_spd"  => 0,
-      #== Image Cycling (for palette swap effect) ==#
-        "img_cycle"   => false,
-        #== Will look in Graphics/Battlebacks[1/2], whichever it is ==#
-        "img_array"   => ["image_1", "image_2", "image_etc"],
-        #== Background cycle updates every X frames ==#
-        "img_speed"   => 16,
-        #== Image changes all at once, or layer by layer ==#
-        "img_sync"    => true,
-      #== Change basic element info to animate as a sinewave ==#
-        "anim_basic"  => false,
-        #== Changing frequency/time/amp over time looks cool ==#
-          #== Amp. = 0, Freq. = 1, Time = 2, scrl_y_spd = 3, ==#
-        "anim_target" => 0,
-        #== Type of animation: sinewave = 0, linear = 1 ==#
-        "anim_type"   => 0,
-        #== The value the animation reaches to, positive and negative ==#
-        "anim_str"    => 2,
-        #== The speed the animation plays through ==#
-        "anim_spd"    => 0.01,
-        #== Animate all at once, or layer by layer ==#
-        "anim_sync"   => true,
-    },
-
-    #== Type your filename WITHOUT .png ==#
-    #== Probably best to copy the default and modify it ==#
-    "bb05" => {
-      #== Basic Info ==#
-        "amplitude"   => -30,
-        "frequency"   => 0,
-        "time_scale"  => 0.05,
-        "compression" => 1,
-      #== Type ==#
-        #== 0 = sinewave, 1 = criss-cross, 2 = vertical stretch ==#
-        "type"        => 0,
-      #== vertical stretch settings, only used with "type" => 2, ==#
-        "v_scale"     => 0.5,
-        "v_zoom"      => 2,
-      #== "Pixel Precise" - sets the x of each strip to allign to 2x2 grid ==#
-        "pixel"       => true,
-      #== Y scrolling, images do loop. ==#
-        "scrl_y_spd"  => 0,
-      #== Image Cycling (for palette swap effect) ==#
-        "img_cycle"   => false,
-        #== Will look in Graphics/Battlebacks[1/2], whichever it is ==#
-        "img_array"   => ["image_1", "image_2", "image_etc"],
-        #== Background cycle updates every X frames ==#
-        "img_speed"   => 16,
-      #== Change basic element info to animate as a sinewave ==#
-        "anim_basic"  => true,
-        #== Changing frequency/time/amp over time looks cool ==#
-          #== Amp. = 0, Freq. = 1, Time = 2, scrl_y_spd = 3, ==#
-        "anim_target" => 3,
-        #== Type of animation: sinewave = 0, linear = 1 ==#
-        "anim_type"   => 0,
-        #== The value the animation reaches to, positive and negative ==#
-        "anim_str"    => -2,
-        #== the speed the animation plays through ==#
-        "anim_spd"    => 0.01,
-    },
-
-  }
-
-end
 
 #==============================================================================
 # ** Earthbound_Back
@@ -125,97 +17,90 @@ class Earthbound_Back < Sprite
   attr_accessor :orig_y
   attr_accessor :bb_num
   attr_accessor :config
+  attr_accessor :orig_bitmap
 #--------------------------------------------------------------------------
 # * Initialize
 #--------------------------------------------------------------------------
   def initialize(*args)
     @val = 0 #variable to hold end value
+    @time = 0
     @sync_time = 0
     @anim_forward = true
     @timer = 1
+    @bg_count = 0
+    @scroll_x = 0
+    @scroll_y = 0
     super(*args)
   end
 #--------------------------------------------------------------------------
 # * Update
 #--------------------------------------------------------------------------
   def update()
-    @offset =  @config["amplitude"] *
-      Math.sin(@config["frequency"] * @orig_y + @time * @config["time_scale"])
-    tuckie_eb_update()
+    @config["img_sync"]  ? update_bg() : update_bg_s()
+    #scroll_bg_x(@orig_bitmap)
+    eb_wave(@orig_bitmap)
+    #scroll_bg_y(self.bitmap)
+    @config["anim_sync"] ? eb_anim()   : eb_anim_s()
     @time += 1
     @sync_time += 1
   end
 #--------------------------------------------------------------------------
-# * Update method breakdowns
+# * "Scroll" Background by splicing image
 #--------------------------------------------------------------------------
-  def tuckie_eb_update()
-    eb_wave()
-    @config["img_sync"]  ? eb_cycle() : eb_cycle_s()
-    @config["anim_sync"] ? eb_anim()  : eb_anim_s()
-    eb_scroll_y()
-    eb_placement()
+  def scroll_bg_x(bitmap)
+    return if @time % 2 != 0
+    @orig_bitmap = Bitmap.new(bitmap.width, bitmap.height)
+    @orig_bitmap.blt(2 - bitmap.width, 0, bitmap, bitmap.rect)
+    @orig_bitmap.blt(2, 0, bitmap, bitmap.rect)
+  end
+#--------------------------------------------------------------------------
+# * "Scroll" Background by splicing image
+#--------------------------------------------------------------------------
+  def scroll_bg_y(bitmap)
+    @scroll_y += 2
+    @scroll_y = @scroll_y % bitmap.height
+    new_btmp = Bitmap.new(bitmap.width, bitmap.height)
+    new_btmp.blt(0, @scroll_y - bitmap.height, bitmap, bitmap.rect)
+    new_btmp.blt(0, @scroll_y, bitmap, bitmap.rect)
+    self.bitmap = new_btmp
   end
 #--------------------------------------------------------------------------
 # * Basic Wave updating
 #--------------------------------------------------------------------------
-  def eb_wave()
-    self.y = @orig_y
-    case @config["type"]
-      when 0
-        self.ox = @offset
-      when 1
-        self.ox = @count.even? ? @offset - 1: -@offset
-      when 2
-        newoff = @offset * @config["v_scale"]
-        self.y = @orig_y * @config["compression"] + newoff
-        self.y -= 1 if self.y.even?
-        self.y -= 1 if self.y < 2
-        self.zoom_y = @config["v_zoom"]
+  def eb_wave(bitmap)
+    time = 0
+    line = 0
+    new_bitmap = Bitmap.new(bitmap.width, bitmap.height)
+
+    while line < bitmap.height do
+      @offset = @config["amplitude"] *
+       Math.sin(@config["frequency"] * line + @time * @config["time_scale"])
+      new_x = 0
+      new_y = line
+      sorc_rect = Rect.new(0, line, bitmap.width, 2)
+      case @config["type"]
+        when 0
+          new_x = @offset
+          new_bitmap.blt(new_x, new_y, bitmap , sorc_rect)
+        when 1
+          new_x = (line / 2).even? ? @offset - 1: -@offset
+          new_bitmap.blt(new_x, new_y, bitmap , sorc_rect)
+        when 2
+          old_time = @time - 1
+          old_off = @config["amplitude"] *
+           Math.sin(@config["frequency"] * line + old_time * @config["time_scale"])
+          new_y = line * @config["compression"] + @offset
+          rect = Rect.new(new_x, old_off + line * @config["compression"], bitmap.width, (old_off - new_y).abs)
+          new_bitmap.stretch_blt(rect, bitmap , sorc_rect)
+          if new_y > bitmap.height
+            loc = new_y - bitmap.height
+            new_bitmap.stretch_blt(Rect.new(0, 0, bitmap.width, loc), bitmap, sorc_rect)
+          end
+      end
+
+      line += 2
     end
-  end
-#--------------------------------------------------------------------------
-# * Vertical Scrolling
-#--------------------------------------------------------------------------
-  def eb_scroll_y
-    @orig_y += @config["scrl_y_spd"]
-  end
-#--------------------------------------------------------------------------
-# * Image cycling
-#--------------------------------------------------------------------------
-  def eb_cycle
-    return if !@config["img_cycle"]
-    @cycle_frame = 0 if !defined? @cycle_frame
-    if @time % @config["img_speed"] == 0
-      @cycle_frame += 1
-      @cycle_frame = 0 if @cycle_frame > @config["img_array"].length
-    end
-    case bb_num
-      when 1
-        bitmap =  Bitmap.new(Cache.battleback1(@config["img_array"][@cycle_frame]))
-        self.bitmap = bitmap
-      when 2
-        bitmap =  Bitmap.new(Cache.battleback2(@config["img_array"][@cycle_frame]))
-        self.bitmap = bitmap
-    end
-  end
-#--------------------------------------------------------------------------
-# * Synced image cycling
-#--------------------------------------------------------------------------
-  def eb_cycle_s
-    return if !@config["img_cycle"]
-    @cycle_frame = 0 if !defined? @cycle_frame
-    if @sync_time % @config["img_speed"] == 0
-      @cycle_frame += 1
-      @cycle_frame = 0 if @cycle_frame > @config["img_array"].length
-    end
-    case bb_num
-      when 1
-        bitmap =  Bitmap.new(Cache.battleback1(@config["img_array"][@cycle_frame]))
-        self.bitmap = bitmap
-      when 2
-        bitmap =  Bitmap.new(Cache.battleback2(@config["img_array"][@cycle_frame]))
-        self.bitmap = bitmap
-    end
+    self.bitmap = new_bitmap
   end
 #--------------------------------------------------------------------------
 # * Animation of elements
@@ -230,6 +115,7 @@ class Earthbound_Back < Sprite
         @anim_forward = true  if @val <= -@config["anim_str"]
         @anim_forward = false if @val >=  @config["anim_str"]
     end
+      @val += @config["anim_str"] * 0.5 if @config["anim_pos"]
     case @config["anim_target"]
       when 0
         @config["amplitude"]  = @val
@@ -254,6 +140,7 @@ class Earthbound_Back < Sprite
         @anim_forward = true  if @val <= -@config["anim_str"]
         @anim_forward = false if @val >=  @config["anim_str"]
     end
+      @val += @config["anim_str"] * 0.5 if @config["anim_pos"]
     case @config["anim_target"]
       when 0
         @config["amplitude"]  = @val
@@ -265,16 +152,41 @@ class Earthbound_Back < Sprite
         @config["scrl_y_spd"] = @val
     end
   end
-#--------------------------------------------------------------------------
-# * Corrects screen looping, and "pixel perfect x values"
-#--------------------------------------------------------------------------
-  def eb_placement
-    @orig_y = (@orig_y + self.bitmap.height) % self.bitmap.height
-    if @config["pixel"]
-      self.ox -= 1 if !self.ox.even?
+
+  def update_bg()
+    return if !@config["img_cycle"]
+
+    if @time % @config["img_speed"] == 0
+      @bg_count += 1
+      @bg_count = 0 if @bg_count > @config["img_array"].count
     end
+
+    case @bb_num
+      when 1
+        @orig_bitmap = Cache.battleback1(@config["img_array"])
+      when 2
+        @orig_bitmap = Cache.battleback2(@config["img_array"])
+    end
+
   end
-end
+
+  def update_bg_s()
+    return if !@config["img_cycle"]
+    if @sync_time % @config["img_speed"] == 0
+      @bg_count += 1
+      @bg_count = 0 if @bg_count > @config["img_array"].count
+    end
+
+    case @bb_num
+      when 1
+        @orig_bitmap = Cache.battleback1(@config["img_array"])
+      when 2
+        @orig_bitmap = Cache.battleback2(@config["img_array"])
+    end
+
+  end
+
+end #End Class Earthbound_Back
 #==============================================================================
 # ** Spriteset_Battle
 #------------------------------------------------------------------------------
@@ -305,14 +217,14 @@ class Spriteset_Battle
     end
   end
   #--------------------------------------------------------------------------
-  # * Pull Settings for battleback 1 | new method
+  # * Pull Settings for battleback 2 | new method
   #--------------------------------------------------------------------------
   def get_bb2_settings()
     if Tuckie_eb_bb_config::BACKGROUND_DEETS.has_key? battleback2_name
       default = Tuckie_eb_bb_config::BACKGROUND_DEETS["Default"]
       options = Tuckie_eb_bb_config::BACKGROUND_DEETS[battleback2_name]
       options = default.merge(options)
-            return options
+      return options
     else
       return Tuckie_eb_bb_config::BACKGROUND_DEETS["Default"]
     end
@@ -321,53 +233,37 @@ class Spriteset_Battle
   # * Create Battle Background (Floor) Sprite | overwrite
   #--------------------------------------------------------------------------
   def create_battleback1
-    count = 0
     @back1_sprite = []
     setup = get_bb1_settings
-    while count * 2 <= battleback1_bitmap.height - 2 do
       strip = Earthbound_Back.new(@viewport1)
       #set strip boys
       strip.config = setup
+      strip.blend_type = setup["blend"]
       strip.bb_num = 1
-      strip.time = count
       #get strip image
       strip.bitmap = battleback1_bitmap
-      rc = Rect.new(0, count * 2, battleback1_bitmap.width, 2)
-      strip.src_rect = rc
+      strip.z = 1
+      strip.orig_bitmap = battleback1_bitmap
       center_sprite_x(strip)
-      strip.z = 2
-      strip.orig_y = count * 2
-      strip.y = count * 2
-      strip.count = count
       @back1_sprite.push(strip)
-      count += 1
-    end
   end
   #--------------------------------------------------------------------------
   # * Create Battle Background (Wall) Sprite
   #--------------------------------------------------------------------------
   def create_battleback2
-    count = 0
-    setup = get_bb2_settings
     @back2_sprite = []
-    while count * 2 <= battleback2_bitmap.height - 2 do
+    setup = get_bb2_settings
       strip = Earthbound_Back.new(@viewport1)
       #set strip boys
       strip.config = setup
-      strip.bb_num = 2
-      strip.time = count
-      strip.orig_y = count * 2
+      strip.blend_type = setup["blend"]
+      strip.bb_num = 1
       #get strip image
       strip.bitmap = battleback2_bitmap
-      rc = Rect.new(0, count * 2, battleback2_bitmap.width, 2)
-      strip.src_rect = rc
+      strip.z = 2
+      strip.orig_bitmap = battleback2_bitmap
       center_sprite_x(strip)
-      strip.z = 4
-      strip.count = count
-      strip.y = count * 2
       @back2_sprite.push(strip)
-      count += 1
-    end
   end
   #--------------------------------------------------------------------------
   # * Get Battle Background (Floor) Bitmap
@@ -436,7 +332,9 @@ class Spriteset_Battle
   #--------------------------------------------------------------------------
   def update_battleback1
     unless @back1_sprite.empty?
-      @back1_sprite.each { |bb| bb.update() }
+      @back1_sprite.each do |bb|
+        bb.update()
+      end
     end
   end
   #--------------------------------------------------------------------------

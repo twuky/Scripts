@@ -7,13 +7,8 @@
 # $game_variables[30]   # Stores the used item
 
 class Minigame_Base
-  def initialize(actor)
-    #------ should set these up when making customs
-    @actor_id  = actor
-    @sprites   = []
-    @mg_length = 0
-    #------
-    get_usey_infotoids()
+  def initialize(a, b)
+
     setup() # user setup for minigame subclass
     minigame_loop()
     close()
@@ -25,22 +20,6 @@ class Minigame_Base
 
   def minigame_loop
 
-  end
-
-  def get_usey_infotoids()
-    # get user (of skill or item or whatever idk)
-    if $game_temp.user.actor?
-      @user = $game_temp.user.instance_variable_get(@actor_id)
-    else
-      @user = $game_temp.user.index
-    end
-    # get target WHOS BEIN HIT??? (✨_✨)✋
-    if $game_temp.target.actor?
-      @target = $game_temp.target.instance_variable_get(@actor_id)
-    else
-      @target = $game_temp.target.index
-    end
-    #more stuff here later??
   end
 
   def close()

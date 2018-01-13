@@ -137,8 +137,8 @@ class Window_Message < Window_Base
   #-----------------------------------------------------------------------------
   alias tuckie_textblips_initialize initialize
   def initialize(*args)
+    $textblip_current   = 0
     @textblipvol  = SE_VOLUME
-    @current_se   = 0
     @textblipmax  = MAXIMUM
     @textblipmin  = MINIMUM
     @count        = COUNT
@@ -160,10 +160,10 @@ class Window_Message < Window_Base
   # Determin if current SFX is an array, and randomly pick sfx | New Method
   #-----------------------------------------------------------------------------
   def textblip_check_array()
-    if SE_NAME[@current_se].is_a? Array
-      @textblipfile = SE_NAME[@current_se].sample
+    if SE_NAME[$textblip_current].is_a? Array
+      @textblipfile = SE_NAME[$textblip_current].sample
     else
-      @textblipfile = SE_NAME[@current_se]
+      @textblipfile = SE_NAME[$textblip_current]
     end
   end
   #-----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ class Window_Message < Window_Base
     when 'TVOL'
       @textblipvol = obtain_escape_param(text)
     when 'TNAM'
-      @current_se = obtain_escape_param(text)
+      $textblip_current = obtain_escape_param(text)
     when 'TMAX'
       @textblipmax = obtain_escape_param(text)
     when 'TMIN'
@@ -215,7 +215,7 @@ class Window_Message < Window_Base
     CUSTOM_CMD.each do |custom|
       if custom[0].is_a? String
        if custom[0].upcase == code.upcase
-         @current_se = custom[1] if custom[1].is_a? Integer
+         $textblip_current = custom[1] if custom[1].is_a? Integer
        end
       end
     end

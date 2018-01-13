@@ -13,7 +13,7 @@ module Tuckie_BattleFlavor
   #
   #--------------------------------------------------------------------------
 
-  BLACKBAR   =  true # Enable or disable this feature
+  BLACKBAR   =  false # Enable or disable this feature
 
   IMAGE_NAME = "BFlavBar" #Name of the file used for the background graphic
 
@@ -32,15 +32,13 @@ module Tuckie_BattleFlavor
   #   the number of arrays you have set.
   #--------------------------------------------------------------------------
 
-  ENEMY_FLAVOR =[
 
-    ["It's Time To Slam Jam", "Watch Out For My Secret Move!"], # Default Phrases. Array index 0
-    [nil],#boy 1
-    ["Someone's gotta clean up those ballots", "Chads. So many chads."], #ballot box
-    ["(-_-;)"], #wobbly nelson
-    []#boy 4
+    ENEMY_FLAVOR =[
 
-  ]# End of flavors
+      ["hi twitter @plsvotetuckie"], # Default Phrases. Array index 0
+
+
+    ]# End of flavors
 
 end #Keep this here!! ;)
 
@@ -50,16 +48,9 @@ end #Keep this here!! ;)
 class BattleFlavorWindow < Window_Base
 
   def initialize
-    super(-6, -12, 648, 480)
+    super(-8, -12, 656, 480)
     self.z = 299
     self.back_opacity = 0
-    if Tuckie_BattleFlavor::BLACKBAR #module configuration = true
-          @blackbar         =  Sprite.new()
-          @blackbar.bitmap  =  Cache.system(Tuckie_BattleFlavor::IMAGE_NAME)
-          @blackbar.x       =  Tuckie_BattleFlavor::FLTEXT_X + Tuckie_BattleFlavor::BBYOFFSET
-          @blackbar.y       =  Tuckie_BattleFlavor::FLTEXT_Y + Tuckie_BattleFlavor::BBXOFFSET
-          @blackbar.z       =  Tuckie_BattleFlavor::IMAGE_Z
-    end
   end
 
   def update
@@ -90,7 +81,6 @@ class BattleFlavorWindow < Window_Base
   end
 
   def destroy
-    @blackbar.dispose
     contents.clear
   end
 end #class BattleFlavorWindow
