@@ -75,22 +75,24 @@ class Earthbound_Back < Sprite
     while line < bitmap.height do
       @offset = @config["amplitude"] *
        Math.sin(@config["frequency"] * line + @time * @config["time_scale"])
+      @offset += 1 if !@offset.round.even?
       new_x = 0
       new_y = line
       sorc_rect = Rect.new(0, line, bitmap.width, 2)
       case @config["type"]
         when 0
-          new_x = @offset
+          new_x = @offset.round
           new_bitmap.blt(new_x, new_y, bitmap , sorc_rect)
         when 1
-          new_x = (line / 2).even? ? @offset - 1: -@offset
+          new_x = (line / 2).even? ? @offset.round : -@offset.round
           new_bitmap.blt(new_x, new_y, bitmap , sorc_rect)
         when 2
           old_time = @time - 1
           old_off = @config["amplitude"] *
            Math.sin(@config["frequency"] * line + old_time * @config["time_scale"])
-          new_y = line * @config["compression"] + @offset
-          rect = Rect.new(new_x, old_off + line * @config["compression"], bitmap.width, (old_off - new_y).abs)
+          new_y = line * @config["compression"] + @offset.round
+          old_off += 1 if !old_off.round.even?
+          rect = Rect.new(new_x, old_off.round + line * @config["compression"], bitmap.width, (old_off - new_y).abs)
           new_bitmap.stretch_blt(rect, bitmap , sorc_rect)
           if new_y > bitmap.height
             loc = new_y - bitmap.height
